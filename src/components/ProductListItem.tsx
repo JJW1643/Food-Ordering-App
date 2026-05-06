@@ -1,6 +1,7 @@
 import Colors from '@/src/constants/Colors';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, Pressable} from 'react-native';
 import {Product} from '../types';
+import { Link } from 'expo-router';
 
 export const defaultPizzaImage =
       'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/food/default.png';
@@ -18,15 +19,21 @@ type ProductListItemProps = {
 const ProductListItem = ({ product }: ProductListItemProps) => {
   
   return (
-    <View style={styles.container}>
-      <Image source={{ uri: product.image || defaultPizzaImage }} style={styles.image} 
-      // This allows the image to fit within the container without being cropped, maintaining its aspect ratio.
-      resizeMode='contain'
-      />
+    <Link href={`/menu/${product.id}`} asChild>
+        <Pressable style={styles.container}>
+            <Image source={{ uri: product.image || defaultPizzaImage }} 
+            style={styles.image} 
+            // This allows the image to fit within the container without being cropped, maintaining its aspect ratio.
+            resizeMode='contain'
+            />
 
-      <Text style={styles.title}>{product.name}</Text>
-      <Text style={styles.price}>£{product.price}</Text>
-    </View>
+            <Text style={styles.title}>{product.name}</Text>
+            <Text style={styles.price}>£{product.price}</Text>
+
+        
+
+        </Pressable>
+    </Link>
   );
 };
 
@@ -45,7 +52,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
     marginVertical: 10,
   },
