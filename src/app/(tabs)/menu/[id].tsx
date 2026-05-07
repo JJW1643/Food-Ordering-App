@@ -1,16 +1,113 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
-import {View, Text} from 'react-native';
+import {View, Text, Image, StyleSheet, Pressable} from 'react-native';
+import products from '@/assets/data/products';
+import { defaultPizzaImage } from '@/src/components/ProductListItem';
+import {useState} from 'react';
+import Button  from '@/src/components/Button';
+
+// The sizes available for the product, which can be used to display size options in the UI. This is a simple array.
+
+const sizes = ['S', 'M', 'L', 'XL'];
 
 const ProductDetailsScreen = () => {
 
   const { id } = useLocalSearchParams();
 
+  // A state variable to keep track of the selected size for the product. It is initialized to 'M' (Medium) and can be updated when the user selects a different size.
+
+  const [selectedSize, setSelectedSize] = useState('M');
+
+  // Find the product with the matching id from the products array
+
+  const product = products.find(p => p.id.toString() === id);
+
+  const addToCart = () => {
+    console.warn(`Added ${product?.name} of size ${selectedSize} to cart`);
+  }
+
+  // If no product is found, display a message
+
+  if (!product) {
+    return <Text>Product not found</Text>;
+  }
+
+  // Display the specific product name and its price
+
   return (
-    <View>
-      <Stack.Screen options={{ title: 'Details ' + id }} />
-      <Text>Product Details Screen: {id }</Text>
+    <View style={styles.container}>
+      <Stack.Screen options={{ title: product.name }} />
+      <Image source={{ uri: product.image || defaultPizzaImage }} 
+      style={ styles.image } />
+
+      <Text>Select Size</Text>
+      <View style={styles.sizes}>
+        {sizes.map(size => (
+          <Pressable 
+            onPress={() => { setSelectedSize(size);
+            }}
+            style={[
+            styles.size, 
+            {backgroundColor: selectedSize === size ? 'gainsboro' : 'white' }
+            ]} 
+            key={size}>
+            <Text style={[
+              styles.sizeText, 
+              {color: selectedSize === size ? 'black' : 'gray'} 
+              ]}>
+                {size}
+                </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={styles.price}>${product.price}</Text>
+      <Button onPress={addToCart} text='Add to Cart' />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'white',
+    flex: 1,
+    padding: 10,
+  },
+  
+  image:{
+    width: '100%',
+    aspectRatio: 1,
+  },
+
+  price:{
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 'auto'
+
+  },
+
+  sizes: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+  },
+
+  size: {
+    borderWidth: 1,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: 'white',
+    padding: 10,
+    borderRadius: 25,
+    backgroundColor: 'gainsboro',
+  },
+
+  sizeText: {
+    fontSize: 20,
+    fontWeight: '500',
+  },
+
+});
 
 export default ProductDetailsScreen;
