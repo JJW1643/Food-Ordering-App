@@ -10,6 +10,7 @@ type CartType = {
     items: CartItem[];
     addItem: (product: Product, size: CartItem['size']) => void;
     updateQuantity: (itemId: string, amount: -1 | 1) => void;
+    total: number;
 };
 
 // Create a context for the cart with default values. The items array is initialized as empty, and the addItem function is defined as an empty function. This context will be used to provide cart-related data and functionality to components that need it.
@@ -18,6 +19,7 @@ const CartContext = createContext<CartType>({
     items: [],
     addItem: () => {},
     updateQuantity: () => {},
+    total: 0,
 });
 
 // The CartProvider component is responsible for managing the state of the cart and providing the context to its children. It uses the useState hook to keep track of the items in the cart and defines the addItem function to add new items to the cart. The provider wraps its children with the CartContext.Provider, passing down the current items and the addItem function as the context value.
@@ -58,10 +60,12 @@ const CartProvider = ({children}: PropsWithChildren) => {
 
     };
 
-    console.log('Cart items:', items);
+    // The reduce will look through all the items and collect them all in one single value. It calls a functions with 2 things, the value we are building up and the second is the current item in the loop. So we start with 0 and then for each item we add the price of that item multiplied by its quantity to the total. This way we get the total price of all items in the cart.
+
+    const total = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
     return (
-        <CartContext.Provider value={{items, addItem, updateQuantity }}>
+        <CartContext.Provider value={{items, addItem, updateQuantity, total }}>
             {children}
         </CartContext.Provider>
     );
