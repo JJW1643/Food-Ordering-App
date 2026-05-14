@@ -6,7 +6,7 @@ import { defaultPizzaImage } from '@/src/components/ProductListItem';
 import Colors from '@/src/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 
 const CreateProductScreen = () => {
 
@@ -17,6 +17,12 @@ const CreateProductScreen = () => {
 
     const [errors, setErrors] = useState('');
     const [image, setImage] = useState<string | null>(null);
+
+    // The useLocalSearchParams hook is used to access the query parameters from the URL. In this case, it is used to check if there is an 'id' parameter present, which indicates whether the user is creating a new product or updating an existing one. The presence of the 'id' parameter can be used to conditionally render the screen title and determine the behavior of the form (e.g., whether to pre-fill the fields with existing product data for editing).
+
+    const {id} = useLocalSearchParams();
+
+    const isUpdating = !!id;
 
     const resetFields = () => {
         setName('');
@@ -43,6 +49,16 @@ const CreateProductScreen = () => {
         return true;
     }
 
+    const onSubmit = () => {
+
+        if(isUpdating) {
+            // Update product logic here
+            onUpdateCreate();
+        } else {
+            onCreate();
+        }
+    }
+
     const onCreate = () => {
 
         if (!validateInputs()) {
@@ -54,6 +70,19 @@ const CreateProductScreen = () => {
 
         resetFields();
     }
+
+    const onUpdateCreate = () => {
+
+        if (!validateInputs()) {
+            return;
+        }
+        console.warn('Updating product', name, price);
+
+        // Save in the database
+
+        resetFields();
+    }
+
 
 
     // This function is responsible for allowing the user to pick an image from their device's media library. 
@@ -84,10 +113,30 @@ const CreateProductScreen = () => {
     }
   };
 
+  const onDelete = () => {
+    console.warn('Deleting product', name, price);
+
+    // Delete from the database
+
+    resetFields();
+
+  };
+
+  const confirmDelete = () => {
+    Alert.alert(
+      'Confirm Delete',
+      'Are you sure you want to delete this product?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: onDelete },
+      ]
+    );
+  };
+
   return (
     <View style={styles.container}>
 
-        <Stack.Screen options={{ title: 'Create Product' }} />
+        <Stack.Screen options={{ title: isUpdating ? 'Update Product' : 'Create Product' }} />
 
         <Image 
         source={{ uri: image ||defaultPizzaImage }} 
@@ -114,7 +163,8 @@ const CreateProductScreen = () => {
         />
 
         <Text style={{color: 'red'}}>{errors}</Text>
-        <Button onPress={onCreate} text='Create' />
+        <Button onPress={onSubmit} text={ isUpdating ? 'Update' : 'Create' } />
+        { isUpdating && <Text onPress={confirmDelete} style={styles.textButton}>Delete</Text> }
 
     </View>
   );
