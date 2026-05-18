@@ -40,3 +40,38 @@ if (!passwordRegex.test(password)) {
 ```tsx
 if (!validateInputs()) return;
 ```
+
+## Missing Package — dayjs
+**Error:** `Unable to resolve module dayjs`
+**Cause:** dayjs is a third-party package and isn't built into React Native, so it needs installing.
+**Fix:**
+```bash
+npx expo install dayjs
+npx expo start --clear
+```
+
+---
+
+## dayjs `fromNow()` is not a function
+**Error:** `(0, dayjs.default)(order.created_at).fromNow is not a function (it is undefined)`
+**Cause:** `fromNow()` comes from the `relativeTime` plugin which isn't included in dayjs by default.
+**Fix:** Add these lines at the very top of the file before any `fromNow()` is called:
+```tsx
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
+```
+
+---
+
+## columnWrapperStyle on Single Column FlatList
+**Error:** `columnWrapperStyle not supported for single column lists`
+**Cause:** `columnWrapperStyle` only works when `numColumns` is 2 or more.
+**Fix:** Either remove `columnWrapperStyle` if you only need a single column, or add `numColumns`:
+```tsx
+<FlatList
+    numColumns={2}
+    columnWrapperStyle={{ gap: 10 }}
+/>
+```
