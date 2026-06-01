@@ -1,9 +1,10 @@
-import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import Button from '@/src/components/Button';
 import { Link, Stack } from 'expo-router';
 import { useState } from 'react';
 import Colors from '@/src/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
+import { supabase } from '@/src/lib/supabase';
 
 const SignInScreen = () => {
 
@@ -11,6 +12,16 @@ const SignInScreen = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+
+    const [loading, setLoading] = useState(false);
+    
+        async function signInWithEmail() {
+           setLoading(true);
+           const {error} = await supabase.auth.signInWithPassword({email, password});
+    
+           if (error) Alert.alert(error.message);
+           setLoading(false);
+        }
 
     const resetFields = () => {
         setEmail('');
@@ -88,7 +99,7 @@ const SignInScreen = () => {
             </View>
 
             <Text style={{color: 'red'}}>{error}</Text>
-            <Button onPress={onSignIn} text={ 'Sign In' } />
+            <Button onPress={signInWithEmail} disabled={loading} text={ loading ? 'Signing In...' : 'Sign In' } />
             <Link href={'/sign-up'} asChild>
                 <Text style={styles.signup}>Don't have an account? Sign Up</Text>
             </Link>
