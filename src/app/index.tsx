@@ -9,11 +9,15 @@ import { supabase } from '../lib/supabase';
 const index = () => {
 
   // Access the authentication state from the AuthProvider using the useAuth hook to determine if the user is logged in or not.
-  const {session} = useAuth();
+  const {session, loading, isAdmin} = useAuth();
 
   // If there is no session (i.e., the user is not authenticated), redirect them to the sign-in page. This ensures that only authenticated users can access the main content of the app. 
   if (!session) {
     return <Redirect href={'/sign-in'} />;
+  }
+
+  if (!isAdmin) {
+    return <Redirect href={'/(user)'} />;
   }
 
   return (
@@ -24,10 +28,7 @@ const index = () => {
       <Link href={'/(admin)'} asChild>
         <Button text="Admin" />
       </Link>
-      <Link href={'/sign-in'} asChild>
-        <Button text="Sign in" />
-      </Link>
-
+      
       <Button onPress={() => supabase.auth.signOut()} text="Sign out" />
     </View>
   );
